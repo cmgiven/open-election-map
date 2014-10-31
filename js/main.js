@@ -8,6 +8,7 @@
 	    	scrollWheelZoom: false,
 	    	doubleClickZoom: false,
 	    	boxZoom: false,
+	    	tap: false,
 	    	keyboard: false,
 	    	zoomControl: false,
 	    	attributionControl: false
