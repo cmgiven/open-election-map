@@ -45,5 +45,5 @@ if changed_files.length > 0 then
 	`git pull`
 	`git add #{files}`
 	`git commit -m #{message}`
-	`git push`
+	`git push --all`
 end
