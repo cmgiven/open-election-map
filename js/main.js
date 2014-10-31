@@ -30,7 +30,7 @@
     $(function () {
 	    $.ajax({
 	        dataType: 'json',
-	        url: '/data/precinct-boundaries.json',
+	        url: 'data/precinct-boundaries.json',
 	        data: {},
 	        async: false,
 	        success: function (data) { initMap(data); }
