@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Open Election Map</title>
+        <meta name="description" content="Results from the DC 2014 General Election">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href='http://fonts.googleapis.com/css?family=Cabin:400,700' rel='stylesheet' type='text/css'>
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="js/leaflet-master/leaflet.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+    </head>
+    <body>
+        <header>
+        <img class="logo" src="img/logo.png" />
+            <div class="title">
+                <h1>Open Election Map</h1>
+                <h2>DC 2014 General Election</h2>
+            </div>
+            <div class="credits">
+                <a href="http://wamu.org">WAMU</a>
+                <a href="http://codefordc.org">Code for DC</a>
+            </div>
+        </header>
+        <div id="main">
+            <section id="top">
+                <navigation>
+                    <ul>
+                        <li><a class="pill selected">DC Mayor</a></li>
+                        <li><a class="pill">Initiative 71</a></li>
+                    </ul>
+                </navigation>
+                <div id="status">
+                    <div class="progress-bar"><span class="horizontal-bar" style="width: 75%;"></span></div>
+                    <span>75% of precincts reporting</span>
+                </div>
+            </section>
+            <section id="candidates">
+                <div class="table-header">
+                    <div class="name">Candidate</div>
+                    <div class="party">Party</div>
+                    <div class="votes">Votes</div>
+                    <div class="percentage">%</div>
+                </div>
+                <ul>
+                    <li class="candidate">
+                        <div class="color" style="background:#3F8A4B"></div>
+                        <div class="headshot"></div>
+                        <div class="info">
+                            <div class="name">Muriel E. <strong>Bowser</strong></div>
+                            <div class="party">Democratic</div>
+                            <div class="votes">72,000</div>
+                            <div class="percentage">
+                                <span class="horizontal-bar" style="width: 100%; background:#3F8A4B"></span> 55.5%
+                            </div>
+                        </div>
+                    </li>
+                    <li class="candidate">
+                        <div class="color" style="background:#3F8A4B"></div>
+                        <div class="headshot"></div>
+                        <div class="info">
+                            <div class="name">David A. <strong>Catania</strong></div>
+                            <div class="party">Statehood Green</div>
+                            <div class="votes">72,000</div>
+                            <div class="percentage">
+                                <span class="horizontal-bar" style="width: 100%; background:#3F8A4B"></span> 55.5%
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <a class="action">Show All +</a>
+            </section>
+            <section id="exhibit">
+                <div id="map-wrapper"><div id="map">&nbsp;</div></div>
+                <div class="options">
+                    <div class="panel view">
+                        <h4>View</h4>
+                        <ul>
+                            <li><a class="box selected">Precinct Winner</a></li>
+                            <li><a class="box">Vote Margin</a></li>
+                        </ul>
+                    </div>
+                    <div class="panel filter">
+                        <h4>Filter</h4>
+                        <ul>
+                            <li><a class="pill">Black Areas</a></li>
+                            <li><a class="pill">White Areas</a></li>
+                            <li><a class="pill">Hispanic Areas</a></li>
+                            <li><a class="pill">Homeowners</a></li>
+                            <li><a class="pill">Avg Income</a></li>
+                            <li><a class="pill">Unemployment</a></li>
+                            <li><a class="pill">Bowser Primary Vote</a></li>
+                            <li><a class="pill">Gray Primary Vote</a></li>
+                            <li><a class="pill">Fenty 2010 Primary Vote</a></li>
+                            <li><a class="action">&nbsp;More</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+        <script src="js/lodash.min.js"></script>
+        <script src="js/jquery.csv-0.71.min.js"></script>
+        <script src="js/topojson.v1.min.js"></script>
+        <script src="js/leaflet-master/leaflet-src.js"></script>
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <!-- <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script> -->
+    </body>
+</html>
