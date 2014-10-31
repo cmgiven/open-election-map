@@ -42,7 +42,6 @@ if changed_files.length > 0 then
 	files = changed_files.join(' ')
 	message = 'Auto-update data'
 
-	`git pull`
 	`git add #{files}`
 	`git commit -m #{message}`
 	`git push`
