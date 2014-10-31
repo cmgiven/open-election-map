@@ -173,7 +173,7 @@
 
 /* cursors */
 
-.leaflet-interactive {
+/*.leaflet-interactive {
 	cursor: pointer;
 	}
 .leaflet-container {
@@ -194,7 +194,7 @@
 	cursor: -webkit-grabbing;
 	cursor:    -moz-grabbing;
 	}
-
+*/
 
 /* visual tweaks */
 
