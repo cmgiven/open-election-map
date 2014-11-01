@@ -143,6 +143,8 @@ h2 {
     margin: 0;
 }
 
+a { cursor: pointer; }
+
 a.pill {
     display: block;
     background: #D4D1D0;
@@ -162,9 +164,9 @@ header div.credits {
     float: right;
 }
 
-#main {
+header .wrapper, #main {
     max-width: 1200px;
-    padding: 0 22px 22px 22px;
+    padding: 0 22px;
     margin: 0 auto;
 }
 
@@ -309,6 +311,14 @@ a.action:hover {
     float: right;
 }
 
+#candidates.initiative .party {
+    display: none;
+}
+
+#candidates.initiative a.action {
+    display: none;
+}
+
 #map-wrapper {
     width: 67%;
     float: left;
@@ -369,8 +379,8 @@ a.action:hover {
 }
 
 @media screen and (max-width: 767px) {
-    #main {
-        padding: 0 15px 15px 15px;
+    header .wrapper, #main {
+        padding: 0 15px;
     }
 
     .candidate .info .percentage span.horizontal-bar {
@@ -401,8 +411,8 @@ a.action:hover {
 }
 
 @media screen and (max-width: 479px) {
-    #main {
-        padding: 0 11px 11px 11px;
+    header .wrapper, #main {
+        padding: 0 11px;
     }
 
     header { height: 80px; }

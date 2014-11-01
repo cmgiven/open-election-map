@@ -19,27 +19,24 @@
     </head>
     <body>
         <header>
-        <img class="logo" src="img/logo.png" />
-            <div class="title">
-                <h1>Open Election Map</h1>
-                <h2>DC 2014 General Election</h2>
-            </div>
-            <div class="credits">
-                <a href="http://wamu.org">WAMU</a>
-                <a href="http://codefordc.org">Code for DC</a>
+        <div class="wrapper">
+            <img class="logo" src="img/logo.png" alt="" />
+                <div class="title">
+                    <h1>Open Election Map</h1>
+                    <h2>DC 2014 General Election</h2>
+                </div>
+                <div class="credits">
+                    <a href="http://wamu.org"><img src="img/wamu.png" alt="WAMU 88.5 American University Radio" /></a>
+                    <a href="http://codefordc.org"><img src="img/codefordc.png" alt="Code for DC" /></a>
+                </div>
             </div>
         </header>
         <div id="main">
             <section id="top">
-                <navigation>
-                    <ul>
-                        <li><a class="pill selected">DC Mayor</a></li>
-                        <li><a class="pill">Initiative 71</a></li>
-                    </ul>
-                </navigation>
+                <navigation></navigation>
                 <div id="status">
-                    <div class="progress-bar"><span class="horizontal-bar" style="width: 75%;"></span></div>
-                    <span>75% of precincts reporting</span>
+                    <div class="progress-bar"><span class="horizontal-bar"></span></div>
+                    <span class="label"></span>
                 </div>
             </section>
             <section id="candidates">
@@ -49,32 +46,7 @@
                     <div class="votes">Votes</div>
                     <div class="percentage">%</div>
                 </div>
-                <ul>
-                    <li class="candidate">
-                        <div class="color" style="background:#3F8A4B"></div>
-                        <div class="headshot"></div>
-                        <div class="info">
-                            <div class="name">Muriel E. <strong>Bowser</strong></div>
-                            <div class="party">Democratic</div>
-                            <div class="votes">72,000</div>
-                            <div class="percentage">
-                                <span class="horizontal-bar" style="width: 100%; background:#3F8A4B"></span> 55.5%
-                            </div>
-                        </div>
-                    </li>
-                    <li class="candidate">
-                        <div class="color" style="background:#3F8A4B"></div>
-                        <div class="headshot"></div>
-                        <div class="info">
-                            <div class="name">David A. <strong>Catania</strong></div>
-                            <div class="party">Statehood Green</div>
-                            <div class="votes">72,000</div>
-                            <div class="percentage">
-                                <span class="horizontal-bar" style="width: 100%; background:#3F8A4B"></span> 55.5%
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+                <ul></ul>
                 <a class="action">Show All +</a>
             </section>
             <section id="exhibit">
@@ -105,6 +77,21 @@
                 </div>
             </section>
         </div>
+
+        <script type="text/template" id="candidate-template">
+            <li class="candidate <%= other ? 'hidden' : '' %>">
+                <div class="color" style="background:<%= color ? color : '#AAA' %>"></div>
+                <div class="headshot"><img src="<%= photo ? photo : 'img/anonymous.jpg' %>" alt="" /></div>
+                <div class="info">
+                    <div class="name"><%= first_name ? first_name + ' ' : '' %><strong><%= last_name %></strong></div>
+                    <div class="party"><%= party %></div>
+                    <div class="votes"></div>
+                    <div class="percentage">
+                        <span class="horizontal-bar" style="background:<%= color ? color : '#AAA' %>"></span>&nbsp;<span class="value"></span>
+                    </div>
+                </div>
+            </li>
+        </script>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>

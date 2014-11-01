@@ -1847,7 +1847,6 @@ L.Map = L.Evented.extend({
 		do {
 			zoom += 0.25;
 			boundsSize = this.project(se, zoom).subtract(this.project(nw, zoom)).add(padding);
-			console.log(boundsSize);
 			zoomNotFound = !inside ? size.contains(boundsSize) : boundsSize.x < size.x || boundsSize.y < size.y;
 
 		} while (zoomNotFound && zoom <= maxZoom);
