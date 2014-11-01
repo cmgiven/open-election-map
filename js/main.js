@@ -162,7 +162,7 @@
                     fillOpacity: 1
                 },
                 onEachFeature: function (feature, layer) {
-                    var displayWinner, displayMargin, update;
+                    var displayWinner, displayMargin, update, mouseover, mouseout;
 
                     function interpolateHex(hex1, hex2, distance) {
                         // But it works.
@@ -234,6 +234,19 @@
                             layer.setStyle({ fillColor: '#D4D1D0' });
                         }
                     };
+
+                    mouseover = function (e) {
+                        e.target.setStyle({ weight: 4 });
+                    };
+
+                    mouseout = function (e) {
+                        e.target.setStyle({ weight: 2 });
+                    };
+
+                    layer.on({
+                        mouseover: mouseover,
+                        mouseout: mouseout
+                    });
 
                     map.on({
                         update: update
