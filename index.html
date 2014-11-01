@@ -79,15 +79,21 @@
         </div>
 
         <script type="text/template" id="candidate-template">
-            <li class="candidate <%= other ? 'hidden' : '' %>">
+            <% function commaSeparateNumber(val) {
+                while (/(\d+)(\d{3})/.test(val.toString())) {
+                    val = val.toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
+                }
+                return val;
+            } %>
+            <li class="candidate <%= other ? 'other\" style=\"display: none' : '' %>">
                 <div class="color" style="background:<%= color ? color : '#AAA' %>"></div>
                 <div class="headshot"><img src="<%= photo ? photo : 'img/anonymous.jpg' %>" alt="" /></div>
                 <div class="info">
                     <div class="name"><%= first_name ? first_name + ' ' : '' %><strong><%= last_name %></strong></div>
                     <div class="party"><%= party %></div>
-                    <div class="votes"></div>
+                    <div class="votes"><%= commaSeparateNumber(tally) %></div>
                     <div class="percentage">
-                        <span class="horizontal-bar" style="background:<%= color ? color : '#AAA' %>"></span>&nbsp;<span class="value"></span>
+                        <span class="horizontal-bar" style="width: <%= (tally / maxVotes * 100) + '%' %>; background:<%= color ? color : '#AAA' %>"></span>&nbsp;<span class="value"><%= (tally / totalVotes * 100).toFixed(1) + '%' %></span>
                     </div>
                 </div>
             </li>

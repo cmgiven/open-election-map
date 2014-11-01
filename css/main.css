@@ -143,8 +143,6 @@ h2 {
     margin: 0;
 }
 
-a { cursor: pointer; }
-
 a.pill {
     display: block;
     background: #D4D1D0;
@@ -218,6 +216,8 @@ div.progress-bar span.horizontal-bar {
     margin: 2px 0;
 }
 
+div.revealer { margin: 0 -3px; padding: 0 3px; }
+
 #candidates {
     padding: 30px 0;
 }
@@ -235,7 +235,7 @@ div.progress-bar span.horizontal-bar {
     display: block;
     position: relative;
     height: 44px;
-    margin: 6px 0;
+    margin: 6px 0 0 0;
     color: #222;
     background: #fff;
     -moz-box-shadow:    0 1px 3px #636160;

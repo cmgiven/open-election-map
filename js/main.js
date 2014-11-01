@@ -5,7 +5,7 @@
 (function () {
     'use strict';
 
-    var oem,
+    var app,
         data,
 
         Navigation,
@@ -21,38 +21,46 @@
             results: 'data/results.csv'
         };
 
-    $(function () { oem.initialize(); });
+    $(function () { app.initialize(); });
 
-    oem = {
+    app = {
         globals: {
             contest: '',
             initiative: false,
-            filters: []
+            view: 'winner',
+            filteredVTDs: []
         },
 
         initialize: function () {
             var subscribeTo = data.subscribeTo;
 
-            oem.map = new Map('map');
+            app.map = new Map('map');
 
             data.updateAll(function (data) {
-                oem.globals.contest = data.contests[0].id;
+                app.globals.contest = data.contests[0].id;
+                app.globals.filteredVTDs = _.pluck(data.vtd, 'vtd');
 
-                oem.navigation = new Navigation('navigation', data.contests);
-                oem.status = new Status('#status', data.results);
-                oem.candidates = new Candidates('#candidates', data.candidates);
-                oem.candidates.updateTally(data.results, oem.globals);
-                oem.candidates.updateContest(oem.globals);
+                app.navigation = new Navigation('navigation', data.contests);
+                app.status = new Status('#status', data.results);
+                app.candidates = new Candidates('#candidates', data);
+                app.candidates.updateTally(data.results, app.globals);
+                app.candidates.updateContest(app.globals);
+                app.map.results = data.results;
+                app.map.candidates = _.where(data.candidates, { contest: app.globals.contest });
+                app.map.fireEvent('update', app.globals);
 
-                oem.navigation.onChange = function (newContest) {
-                    oem.globals.contest = newContest;
-                    oem.globals.initiative = _.findWhere(data.contests, { id: newContest }).initiative;
+                app.navigation.onChange = function (newContest) {
+                    app.globals.contest = newContest;
+                    app.globals.initiative = _.findWhere(data.contests, { id: newContest }).initiative;
 
-                    oem.candidates.updateContest(oem.globals);
+                    app.candidates.updateContest(app.globals);
+
+                    app.map.candidates = _.where(data.candidates, { contest: app.globals.contest });
+                    app.map.fireEvent('update', app.globals);
                 };
 
-                subscribeTo('results', oem.status.update);
-                subscribeTo('results', oem.candidates.update);
+                subscribeTo('results', app.status.update);
+                subscribeTo('results', app.candidates.update);
             });
         }
     };
@@ -129,6 +137,9 @@
     Map = function (el) {
         var map = this;
 
+        this.results = this.results || {};
+        this.candidates = this.candidates || {};
+
         this.superclass(el, {
             dragging: false,
             touchZoom: false,
@@ -141,20 +152,100 @@
             attributionControl: false
         });
 
-        function initBoundaries(data) {
-            var vtds = L.geoJson(topojson.feature(data, data.objects.precincts), {
+        function initBoundaries(json) {
+            map.vtds = L.geoJson(topojson.feature(json, json.objects.precincts), {
                 style: {
                     color: '#E8E6E5',
                     opacity: 1,
                     weight: 2,
                     fillColor: '#D4D1D0',
                     fillOpacity: 1
+                },
+                onEachFeature: function (feature, layer) {
+                    var displayWinner, displayMargin, update;
+
+                    function interpolateHex(hex1, hex2, distance) {
+                        // But it works.
+                        var r1 = parseInt(hex1.substr(1, 2), 16),
+                            g1 = parseInt(hex1.substr(3, 2), 16),
+                            b1 = parseInt(hex1.substr(5, 2), 16),
+                            r2 = parseInt(hex2.substr(1, 2), 16),
+                            g2 = parseInt(hex2.substr(3, 2), 16),
+                            b2 = parseInt(hex2.substr(5, 2), 16),
+                            r = Math.round(r2 + (r1 - r2) * distance).toString(16),
+                            g = Math.round(g2 + (g1 - g2) * distance).toString(16),
+                            b = Math.round(b2 + (b1 - b2) * distance).toString(16);
+
+                        return '#' + (r.length === 2 ? r : '0' + r) + (g.length === 2 ? g : '0' + g) + (b.length === 2 ? b : '0' + b);
+                    }
+
+                    function cutscores(d) {
+                        /*jslint white: true */
+                        return d > 0.8 ? 1    :
+                               d > 0.7 ? 0.75 :
+                               d > 0.6 ? 0.5  :
+                                         0.25 ;
+                    }
+
+                    displayWinner = function () {
+                        if (!_.isEmpty(map.candidates) && !_.isEmpty(map.results)) {
+                            var winnerColor,
+                                votesCast,
+                                vtdResults = _.findWhere(map.results, { vtd: feature.id }),
+                                contestResults = _(vtdResults).pick(_.pluck(map.candidates, 'id'))
+                                    .map(function (v, k) { var pair = []; pair[0] = k; pair[1] = parseInt(v, 10); return pair; })
+                                    .value(),
+                                max = _(contestResults)
+                                    .max(function (pair) {
+                                        return pair[1];
+                                    })
+                                    .value(),
+                                winner = max[0],
+                                winnerTally = max[1];
+
+                            if (winner) {
+                                winnerColor = _.findWhere(map.candidates, { id: winner }).color;
+                                winnerColor = winnerColor === '' ? '#D4D1D0' : winnerColor;
+
+                                votesCast = _(contestResults).values().reduce(function (memo, pair) { return memo + pair[1]; }, 0);
+
+                                layer.setStyle({ fillColor: interpolateHex(winnerColor, '#D4D1D0', cutscores(winnerTally / votesCast)) });
+                            } else {
+                                layer.setStyle({ fillColor: '#D4D1D0' });
+                            }
+                        }
+                    };
+
+                    displayMargin = function () {
+                        //
+                    };
+
+                    update = function (globals) {
+                        if (_.contains(globals.filteredVTDs, feature.id)) {
+                            switch (globals.view) {
+                            case 'winner':
+                                displayWinner();
+                                break;
+                            case 'margin':
+                                displayMargin();
+                                break;
+                            }
+                        } else {
+                            layer.setStyle({ fillColor: '#D4D1D0' });
+                        }
+                    };
+
+                    map.on({
+                        update: update
+                    });
+
+                    displayWinner();
                 }
             });
 
-            map.fitBounds(vtds).addLayer(vtds);
+            map.fitBounds(map.vtds).addLayer(map.vtds);
 
-            $(window).resize(function () { map.fitBounds(vtds); });
+            $(window).resize(function () { map.fitBounds(map.vtds); });
         }
 
         $.ajax({
@@ -204,7 +295,7 @@
             var reporting = status.reporting(results);
             $(el + ' .progress-bar .horizontal-bar').width((reporting * 100) + '%');
             $(el + ' span.label').text(
-                Math.round(reporting * 100) + '% of precincts reporting'
+                Math.floor(reporting * 100) + '% of precincts reporting'
             );
         };
 
@@ -222,13 +313,42 @@
     };
 
     Candidates = function (el, data) {
-        this.$el = $(el);
-        this.data = _.groupBy(data, 'contest');
+        var $el = $(el);
+        this.$el = $el;
+        this.contests = _.groupBy(data.candidates, 'contest');
+        this.vtds = data.vtd;
+
+        $el.find('a.action').click(function (e) {
+            var target = $(e.target);
+
+            target.toggleClass('expanded');
+
+            if (target.hasClass('expanded')) {
+                target.html('Show less &ndash;');
+                $el.find('li.candidate.other')
+                    .wrapAll('<div class="revealer" style="display: none;">')
+                    .show()
+                    .parent()
+                    .slideDown(300, function () {
+                        $(this).children().unwrap();
+                    });
+            } else {
+                target.html('Show more +');
+                $el.find('li.candidate.other')
+                    .wrapAll('<div class="revealer">')
+                    .parent()
+                    .slideUp(300, function () {
+                        $(this).children().hide().unwrap();
+                    });
+            }
+        });
     };
 
     Candidates.prototype.updateContest = function (globals) {
         var template = _.template($('#candidate-template').html()),
             $ul = this.$el.find('ul');
+
+        this.$el.find('a.action').removeClass('expanded').html('Show more +');
 
         $ul.empty();
 
@@ -238,16 +358,48 @@
             this.$el.removeClass('initiative');
         }
 
-        _.each(this.data[globals.contest], function (candidate) {
-            $ul.append(template(candidate));
-        });
+        _(this.contests[globals.contest]).sortBy('tally').reverse()
+            .each(function (candidate) {
+                $ul.append(template(candidate));
+            });
     };
 
     Candidates.prototype.updateTally = function (results, globals) {
-        // Filter VTDs
-        // Filter results on selected VTDs
-        // Tally totals for each candidate in each contest
-        // Write the results out to this.data
+        var contests = this.contests,
+            // filteredVTDs = _(this.vtds).filter(function (vtd) {
+            //     _.each(globals.filters, function (filter) {
+            //         if (!filter(vtd)) { return false; }
+            //     });
+            //     return true;
+            // }).pluck('vtd').value(),
+
+            filteredResults = _.filter(results, function (vtd) {
+                return _.contains(globals.filteredVTDs, vtd.vtd);
+            }),
+
+            candidates = _(results[0]).keys().without('vtd').value(),
+
+            tallies = _.object(candidates, _.map(candidates,
+                function (candidate) {
+                    return _.reduce(filteredResults, function (tally, vtd) {
+                        var votes = parseInt(vtd[candidate], 10);
+                        return tally + (isNaN(votes) ? 0 : votes);
+                    }, 0);
+                }));
+
+        _.each(contests, function (candidates) {
+            var contestTallies = _.pick(tallies, _.pluck(candidates, 'id')),
+                totalVotes = _.reduce(contestTallies, function (total, candidate) {
+                    return total + candidate;
+                }, 0),
+                maxVotes = _(contestTallies).values().max().value();
+
+            _.each(candidates, function (candidate) {
+                candidate.tally = contestTallies[candidate.id];
+                candidate.totalVotes = totalVotes;
+                candidate.maxVotes = maxVotes;
+            });
+        });
     };
 
     Candidates.prototype.update = function (results, globals) {
