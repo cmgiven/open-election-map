@@ -75,7 +75,6 @@
 
                 app.filter.onChange = function () {
                     app.globals.filteredVTDs = app.filter.filteredVTDs(data.vtd);
-                    console.log(app.filter.filteredVTDs(data.vtd).length);
                     app.candidates.update(data.results, app.globals);
                     app.map.fireEvent('update', app.globals);
                 };
@@ -494,28 +493,74 @@
             );
         });
 
-        $(el + ' a').click(function (e) {
+        function updateDescription(options) {
+            $('.filter-controls p.description').text('Precincts ' +
+                options.description +
+                (options.direction === 'gt' ? ' at least:' : ' less than:'));
+        }
+
+        $(el + ' ul a').click(function (e) {
             var target = $(e.target),
                 key = target.data('filter'),
                 options = filter.availableFilters[key];
 
+            filter.filters = [];
+
             if (target.hasClass('selected')) {
                 target.removeClass('selected');
+                $('.filter-controls').slideUp(300);
             } else {
                 options = _.defaults(options, {
                     min: 0,
                     max: 100,
-                    distance: 1,
-                    units: '%',
+                    step: 1,
+                    units: 'percent',
                     divider: 50,
-                    direct: 'gt'
+                    direction: 'gt'
                 });
 
                 $(el + ' a').removeClass('selected');
                 target.addClass('selected');
+
+                updateDescription(options);
+
+                $('.filter-controls .slider input').attr({
+                    min: options.min,
+                    max: options.max,
+                    step: options.step
+                }).val(options.divider);
+                $('.filter-controls .slider span.label').attr('data-units', options.units).text(options.divider);
+                $('.filter-controls').slideDown(300);
+
+                $('.slider input[type="range"]').off('input change');
+                $('.slider input[type="range"]').on('input change', function (e) {
+                    var newValue = $(e.target).val();
+                    $('.slider .label').text(newValue);
+                    options.divider = newValue;
+                    filter.filters = [];
+                    filter.applyFilter(options);
+                    if (filter.onChange) { filter.onChange(); }
+                });
+
+                $('#reverse-direction').off('click');
+                $('#reverse-direction').on('click', function () {
+                    options.direction = options.direction === 'gt' ? 'lt' : 'gt';
+                    updateDescription(options);
+                    filter.filters = [];
+                    filter.applyFilter(options);
+                    if (filter.onChange) { filter.onChange(); }
+                });
+
                 filter.applyFilter(options);
             }
 
+            if (filter.onChange) { filter.onChange(); }
+        });
+
+        $('a#clear-filter').click(function () {
+            $(el + ' a').removeClass('selected');
+            filter.filters = [];
+            $('.filter-controls').slideUp(300);
             if (filter.onChange) { filter.onChange(); }
         });
     };
@@ -545,12 +590,13 @@
         income: {
             name: 'Avg Income',
             column: 'AvgFamilyIncAdj_2007_11',
-            description: "where the average income is",
-            units: '$',
+            description: "where the average family income is",
+            units: 'dollars',
             min: 25000,
-            max: 300000,
-            distance: 2500,
-            divider: 60000
+            max: 200000,
+            step: 2500,
+            divider: 60000,
+            direction: 'lt'
         },
         unemployment: {
             name: 'Unemployment',
@@ -558,6 +604,7 @@
             description: "where the unemployment rate is",
             min: 0,
             max: 30,
+            step: 0.5,
             divider: 7.5
         },
         bowser: {
@@ -578,10 +625,10 @@
     };
 
     Filter.prototype.applyFilter = function (options) {
-        this.filters = [function (vtd) {
-            if (options.direction === 'gt') { return parseInt(vtd[options.column], 10) < options.divider; }
-            return parseInt(vtd[options.column], 10) >= options.divider;
-        }];
+        this.filters.push(function (vtd) {
+            if (options.direction === 'gt') { return parseInt(vtd[options.column], 10) >= options.divider; }
+            return parseInt(vtd[options.column], 10) < options.divider;
+        });
     };
 
     Filter.prototype.filteredVTDs = function (vtds) {

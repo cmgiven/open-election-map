@@ -385,10 +385,41 @@ a.action:hover {
     padding: 3px 8px;
 }
 
-.options .filter a {
+.options .filter ul a {
     padding: 0 8px;
     margin: 3px 1px;
 }
+
+div.filter-controls {
+    padding-bottom: 15px;
+}
+
+div.filter-controls input[type="range"] {
+    width: 100%;
+}
+
+div.filter-controls .slider {
+    margin: -4px 0 5px 0;
+    padding-left: 80px;
+    position: relative;
+    height: 19px;
+}
+
+div.filter-controls .label {
+    font-weight: bold;
+    position: absolute;
+    top: -2px; left: 0;
+}
+
+div.filter-controls .label[data-units="percent"]:after {
+    content: "%";
+}
+
+div.filter-controls .label[data-units="dollars"]:before {
+    content: "$";
+}
+
+span.divider { color: #D4D1D0; }
 
 @media screen and (max-width: 767px) {
     header .wrapper, #main {
