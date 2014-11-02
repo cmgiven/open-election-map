@@ -419,7 +419,9 @@
     };
 
     Candidates.prototype.updateContest = function (globals) {
-        var template = _.template($('#candidate-template').html()),
+        var sorted,
+            candidates = this.contests[globals.contest],
+            template = _.template($('#candidate-template').html()),
             $ul = this.$el.find('ul');
 
         this.$el.find('a.action').removeClass('expanded').html('Show more +');
@@ -432,10 +434,13 @@
             this.$el.removeClass('initiative');
         }
 
-        _(this.contests[globals.contest]).sortBy('tally').reverse()
-            .each(function (candidate) {
-                $ul.append(template(candidate));
-            });
+        if (candidates[0].tally) {
+            sorted = _.sortBy(candidates, 'tally').reverse();
+        } else {
+            sorted = candidates;
+        }
+
+        _.each(sorted, function (candidate) { $ul.append(template(candidate)); });
     };
 
     Candidates.prototype.updateTally = function (results, globals) {
@@ -472,7 +477,7 @@
 
     Candidates.prototype.update = function (results, globals) {
         this.updateTally(results, globals);
-        this.updateContest(globals);
+        this.updateContest(globals); // You can do better than this.
     };
 
     Filter = function (el) {

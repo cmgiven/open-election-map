@@ -91,7 +91,7 @@
                     <div class="party"><%= party %></div>
                     <div class="votes"><%= commaSeparateNumber(tally) %></div>
                     <div class="percentage">
-                        <span class="horizontal-bar" style="width: <%= (tally / maxVotes * 100) + '%' %>; background:<%= color ? color : '#AAA' %>"></span>&nbsp;<span class="value"><%= (tally / totalVotes * 100).toFixed(1) + '%' %></span>
+                        <span class="horizontal-bar" style="width: <%= (tally ? (tally / maxVotes * 100) : 0) + '%' %>; background:<%= color ? color : '#AAA' %>"></span>&nbsp;<span class="value"><%= (tally ? (tally / totalVotes * 100) : 0).toFixed(1) + '%' %></span>
                     </div>
                 </div>
             </li>
