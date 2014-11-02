@@ -1,10 +1,10 @@
 id,first_name,last_name,party,contest,other,color,photo
-bowser,Muriel E.,Bowser,Democratic,mayor,,#278D28,
-catania,David A.,Catania,Independent,mayor,,#3E59B4,
+bowser,Muriel E.,Bowser,Democratic,mayor,,#278D28,img/bowser.jpg
+catania,David A.,Catania,Independent,mayor,,#3E59B4,img/catania.jpg
 djonkam,Nestor,Djonkam,Independent,mayor,TRUE,,
 faith,,Faith,Statehood Green,mayor,TRUE,,
 majors,Bruce,Majors,Libertarian,mayor,TRUE,,
-schwartz,Carol,Schwartz,Independent,mayor,,#E35D00,
+schwartz,Carol,Schwartz,Independent,mayor,,#E35D00,img/schwartz.jpg
 write_in,Write-in,,,mayor,TRUE,,
-71_yes,,For,,initiative_71,,#1D895F,
-71_no,,Against,,initiative_71,,#AE000F,
+71_yes,,For,,initiative_71,,#1D895F,img/yes.jpg
+71_no,,Against,,initiative_71,,#AE000F,img/no.jpg

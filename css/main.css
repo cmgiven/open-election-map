@@ -143,6 +143,14 @@ h2 {
     margin: 0;
 }
 
+.credits img.wamu {
+    margin: 14px 28px 0 0;
+}
+
+.credits img.codefordc {
+    margin: 15px 0 0 0;
+}
+
 a.pill {
     display: block;
     background: #D4D1D0;

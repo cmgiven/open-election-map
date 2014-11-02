@@ -20,14 +20,14 @@
     <body>
         <header>
         <div class="wrapper">
-            <img class="logo" src="img/logo.png" alt="" />
+            <!-- <img class="logo" src="img/logo.png" alt="" /> -->
                 <div class="title">
                     <h1>Open Election Map</h1>
                     <h2>DC 2014 General Election</h2>
                 </div>
                 <div class="credits">
-                    <a href="http://wamu.org"><img src="img/wamu.png" alt="WAMU 88.5 American University Radio" /></a>
-                    <a href="http://codefordc.org"><img src="img/codefordc.png" alt="Code for DC" /></a>
+                    <a href="http://wamu.org"><img src="img/wamu.png" alt="WAMU 88.5 American University Radio" width="156" height="50" class="wamu" /></a>
+                    <a href="http://codefordc.org"><img src="img/c4dc.png" alt="Code for DC" width="106" height="60" class="codefordc" /></a>
                 </div>
             </div>
         </header>
@@ -87,7 +87,7 @@
             } %>
             <li class="candidate <%= other ? 'other\" style=\"display: none' : '' %>">
                 <div class="color" style="background:<%= color ? color : '#AAA' %>"></div>
-                <div class="headshot"><img src="<%= photo ? photo : 'img/anonymous.jpg' %>" alt="" /></div>
+                <div class="headshot"><img src="<%= photo ? photo : 'img/anonymous.gif' %>" alt="" width="44" height="44" /></div>
                 <div class="info">
                     <div class="name"><%= first_name ? first_name + ' ' : '' %><strong><%= last_name %></strong></div>
                     <div class="party"><%= party %></div>
