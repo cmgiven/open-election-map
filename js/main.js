@@ -273,7 +273,7 @@
                                 winnerColor = _.findWhere(map.candidates, { id: winner }).color;
                                 winnerColor = winnerColor === '' ? '#D4D1D0' : winnerColor;
 
-                                map.marginCircles.addLayer(L.circle(layer.getBounds().getCenter(), margin / maxMargin * 800, {
+                                map.marginCircles.addLayer(L.circle(layer.getBounds().getCenter(), Math.sqrt(margin / maxMargin / 3.14) * 1000, {
                                     color: winnerColor,
                                     fillOpacity: 0.75,
                                     stroke: 0
