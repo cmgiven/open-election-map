@@ -31,6 +31,8 @@
             filteredVTDs: []
         },
 
+        filters: [],
+
         initialize: function () {
             var subscribeTo = data.subscribeTo;
 
@@ -38,7 +40,12 @@
 
             data.updateAll(function (data) {
                 app.globals.contest = data.contests[0].id;
-                app.globals.filteredVTDs = _.pluck(data.vtd, 'vtd');
+                app.globals.filteredVTDs = _(data.vtd).filter(function (vtd) {
+                    _.each(app.filters, function (filter) {
+                        if (!filter(vtd)) { return false; }
+                    });
+                    return true;
+                }).pluck('vtd').value();
 
                 app.navigation = new Navigation('navigation', data.contests);
                 app.status = new Status('#status', data.results);
@@ -48,6 +55,18 @@
                 app.map.results = data.results;
                 app.map.candidates = _.where(data.candidates, { contest: app.globals.contest });
                 app.map.fireEvent('update', app.globals);
+
+
+                $('.options .view a').click(function (e) {
+                    var target = $(e.target);
+
+                    if (!target.hasClass('selected')) {
+                        $('.options .view a.selected').removeClass('selected');
+                        target.addClass('selected');
+                        app.globals.view = target.data('view');
+                        app.map.fireEvent('update', app.globals);
+                    }
+                });
 
                 app.navigation.onChange = function (newContest) {
                     app.globals.contest = newContest;
@@ -152,6 +171,27 @@
             attributionControl: false
         });
 
+        this.marginCircles = L.layerGroup().addTo(map);
+
+        function calculateMaxMargin(results, candidates) {
+            var max = 0;
+
+            _.each(results, function (vtd) {
+                var totals = _(vtd).pick(candidates)
+                        .values()
+                        .map(function (str) { return parseInt(str, 10); })
+                        .value().sort(function (a, b) { return b - a; }),
+                    margin = totals[0] - totals[1];
+
+                max = isNaN(margin) ? max : Math.max(max, margin);
+            });
+
+            map.maxMargin = max;
+            return max;
+        }
+
+        map.on({ update: function () { map.marginCircles.clearLayers(); map.maxMargin = undefined; }});
+
         function initBoundaries(json) {
             map.vtds = L.geoJson(topojson.feature(json, json.objects.precincts), {
                 style: {
@@ -194,16 +234,14 @@
                                 vtdResults = _.findWhere(map.results, { vtd: feature.id }),
                                 contestResults = _(vtdResults).pick(_.pluck(map.candidates, 'id'))
                                     .map(function (v, k) { var pair = []; pair[0] = k; pair[1] = parseInt(v, 10); return pair; })
-                                    .value(),
-                                max = _(contestResults)
-                                    .max(function (pair) {
-                                        return pair[1];
-                                    })
-                                    .value(),
-                                winner = max[0],
-                                winnerTally = max[1];
+                                    .sortBy(function (pair) {
+                                        return -pair[1];
+                                    }).value(),
+                                winner = contestResults[0][0],
+                                winnerTally = contestResults[0][1],
+                                tie = contestResults[0][1] === contestResults[1][1];
 
-                            if (winner) {
+                            if (winnerTally && !tie) {
                                 winnerColor = _.findWhere(map.candidates, { id: winner }).color;
                                 winnerColor = winnerColor === '' ? '#D4D1D0' : winnerColor;
 
@@ -217,7 +255,31 @@
                     };
 
                     displayMargin = function () {
-                        //
+                        if (!_.isEmpty(map.candidates) && !_.isEmpty(map.results)) {
+                            var winnerColor,
+                                vtdResults = _.findWhere(map.results, { vtd: feature.id }),
+                                contestResults = _(vtdResults).pick(_.pluck(map.candidates, 'id'))
+                                    .map(function (v, k) { var pair = []; pair[0] = k; pair[1] = parseInt(v, 10); return pair; })
+                                    .sortBy(function (pair) {
+                                        return -pair[1];
+                                    }).value(),
+                                winner = contestResults[0][0],
+                                margin = contestResults[0][1] - contestResults[1][1],
+                                maxMargin = map.maxMargin || calculateMaxMargin(map.results, _.pluck(map.candidates, 'id'));
+
+                            layer.setStyle({ fillColor: '#D4D1D0' });
+
+                            if (margin > 0) {
+                                winnerColor = _.findWhere(map.candidates, { id: winner }).color;
+                                winnerColor = winnerColor === '' ? '#D4D1D0' : winnerColor;
+
+                                map.marginCircles.addLayer(L.circle(layer.getBounds().getCenter(), margin / maxMargin * 800, {
+                                    color: winnerColor,
+                                    fillOpacity: 0.75,
+                                    stroke: 0
+                                }));
+                            }
+                        }
                     };
 
                     update = function (globals) {
@@ -379,12 +441,6 @@
 
     Candidates.prototype.updateTally = function (results, globals) {
         var contests = this.contests,
-            // filteredVTDs = _(this.vtds).filter(function (vtd) {
-            //     _.each(globals.filters, function (filter) {
-            //         if (!filter(vtd)) { return false; }
-            //     });
-            //     return true;
-            // }).pluck('vtd').value(),
 
             filteredResults = _.filter(results, function (vtd) {
                 return _.contains(globals.filteredVTDs, vtd.vtd);
