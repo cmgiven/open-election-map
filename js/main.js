@@ -12,6 +12,7 @@
         Status,
         Candidates,
         Map,
+        Filter,
 
         SHAPEFILE = 'data/precinct-boundaries.json',
         DATA_PATHS = {
@@ -31,21 +32,15 @@
             filteredVTDs: []
         },
 
-        filters: [],
-
         initialize: function () {
             var subscribeTo = data.subscribeTo;
 
             app.map = new Map('map');
+            app.filter = new Filter('.options .filter');
 
             data.updateAll(function (data) {
                 app.globals.contest = data.contests[0].id;
-                app.globals.filteredVTDs = _(data.vtd).filter(function (vtd) {
-                    _.each(app.filters, function (filter) {
-                        if (!filter(vtd)) { return false; }
-                    });
-                    return true;
-                }).pluck('vtd').value();
+                app.globals.filteredVTDs = app.filter.filteredVTDs(data.vtd);
 
                 app.navigation = new Navigation('navigation', data.contests);
                 app.status = new Status('#status', data.results);
@@ -75,6 +70,13 @@
                     app.candidates.updateContest(app.globals);
 
                     app.map.candidates = _.where(data.candidates, { contest: app.globals.contest });
+                    app.map.fireEvent('update', app.globals);
+                };
+
+                app.filter.onChange = function () {
+                    app.globals.filteredVTDs = app.filter.filteredVTDs(data.vtd);
+                    console.log(app.filter.filteredVTDs(data.vtd).length);
+                    app.candidates.update(data.results, app.globals);
                     app.map.fireEvent('update', app.globals);
                 };
 
@@ -356,12 +358,10 @@
             if (!target.hasClass('selected')) {
                 $(el + ' a').removeClass('selected');
                 target.addClass('selected');
-                navigation.onChange(target.data('contest'));
+                if (navigation.onChange) { navigation.onChange(target.data('contest')); }
             }
         });
     };
-
-    Navigation.prototype.onChange = function () { return undefined; };
 
     Status = function (el, results) {
         var status = this;
@@ -473,7 +473,126 @@
 
     Candidates.prototype.update = function (results, globals) {
         this.updateTally(results, globals);
-        // And then update display
+        this.updateContest(globals);
+    };
+
+    Filter = function (el) {
+        var filter = this,
+            $el = $(el),
+            $ul = $('<ul>').appendTo($el);
+
+        filter.filters = [];
+
+        _.each(filter.availableFilters, function (options, key) {
+            $ul.append(
+                $('<li>').append(
+                    $('<a>')
+                        .addClass('pill')
+                        .data('filter', key)
+                        .text(options.name)
+                )
+            );
+        });
+
+        $(el + ' a').click(function (e) {
+            var target = $(e.target),
+                key = target.data('filter'),
+                options = filter.availableFilters[key];
+
+            if (target.hasClass('selected')) {
+                target.removeClass('selected');
+            } else {
+                options = _.defaults(options, {
+                    min: 0,
+                    max: 100,
+                    distance: 1,
+                    units: '%',
+                    divider: 50,
+                    direct: 'gt'
+                });
+
+                $(el + ' a').removeClass('selected');
+                target.addClass('selected');
+                filter.applyFilter(options);
+            }
+
+            if (filter.onChange) { filter.onChange(); }
+        });
+    };
+
+    Filter.prototype.availableFilters = {
+        black: {
+            name: 'Black Areas',
+            column: 'PctBlackNonHispBridge_2010',
+            description: "with a black population of"
+        },
+        white: {
+            name: 'White Areas',
+            column: 'PctWhiteNonHispBridge_2010',
+            description: "with a white population of"
+        },
+        hispanic: {
+            name: 'Hispanic Areas',
+            column: 'PctHisp_2010',
+            description: "with an Hispanic population of",
+            divider: 25
+        },
+        homeowners: {
+            name: 'Homeowners',
+            column: 'PctOwnerOccupiedHsgUnits_2007_11',
+            description: "where the percentage of homes occupied by the owner is"
+        },
+        income: {
+            name: 'Avg Income',
+            column: 'AvgFamilyIncAdj_2007_11',
+            description: "where the average income is",
+            units: '$',
+            min: 25000,
+            max: 300000,
+            distance: 2500,
+            divider: 60000
+        },
+        unemployment: {
+            name: 'Unemployment',
+            column: 'PctUnemployed_2007_11',
+            description: "where the unemployment rate is",
+            min: 0,
+            max: 30,
+            divider: 7.5
+        },
+        bowser: {
+            name: 'Bowser Primary Vote',
+            column: 'DemPrimary14_Bowser',
+            description: "where Muriel Bowser's vote share in the Democratic primary was"
+        },
+        gray: {
+            name: 'Gray Primary Vote',
+            column: 'DemPrimary14_Gray',
+            description: "where Vincent Gray's vote share in the Democratic primary was"
+        },
+        fenty: {
+            name: 'Fenty 2010 Primary Vote',
+            column: 'DemPrimary10_Fenty',
+            description: "where Adrian Fenty's vote share in the 2010 Democratic primary was"
+        }
+    };
+
+    Filter.prototype.applyFilter = function (options) {
+        this.filters = [function (vtd) {
+            if (options.direction === 'gt') { return parseInt(vtd[options.column], 10) < options.divider; }
+            return parseInt(vtd[options.column], 10) >= options.divider;
+        }];
+    };
+
+    Filter.prototype.filteredVTDs = function (vtds) {
+        var filter = this;
+        return _(vtds).filter(function (vtd) {
+            var pass = true;
+            _.each(filter.filters, function (filter) {
+                if (!filter(vtd)) { pass = false; }
+            });
+            return pass;
+        }).pluck('vtd').value();
     };
 
 }());

@@ -323,6 +323,10 @@ a.action:hover {
     display: none;
 }
 
+#candidates.initiative .table-header .name {
+    visibility: hidden;
+}
+
 #candidates.initiative a.action {
     display: none;
 }
