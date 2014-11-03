@@ -1,6 +1,6 @@
 /*jslint browser: true*/
 /*jslint nomen: true*/
-/*global $, _, L, topojson*/
+/*global $, _, L, topojson, WebSocket*/
 
 (function () {
     'use strict';
@@ -14,6 +14,8 @@
         Map,
         Filter,
         Legend,
+
+        SERVER = 'ws://enigmatic-peak-6355.herokuapp.com',
 
         SHAPEFILE = 'data/precinct-boundaries.json',
         DATA_PATHS = {
@@ -49,7 +51,8 @@
         },
 
         initialize: function () {
-            var subscribeTo = data.subscribeTo;
+            var ws,
+                subscribeTo = data.subscribeTo;
 
             app.map = new Map('map', app);
             app.filter = new Filter('.options .filter');
@@ -105,6 +108,18 @@
                     app.map.fireEvent('update', app.globals);
                 });
             });
+
+            function intervalCheck() {
+                setInterval(function () { data.update(['results']); }, 90000);
+            }
+
+            if (WebSocket) {
+                ws = new WebSocket(SERVER);
+                ws.onclose = intervalCheck;
+                ws.onmessage = function (event) { data.update([JSON.parse(event.data)]); };
+            } else {
+                intervalCheck();
+            }
         }
     };
 
@@ -439,7 +454,8 @@
     };
 
     Candidates = function (el, data, globals) {
-        var $el = $(el);
+        var candidates = this,
+            $el = $(el);
         this.$el = $el;
         this.globals = globals;
         this.contests = _.groupBy(data.candidates, 'contest');
@@ -469,6 +485,13 @@
                     });
             }
         });
+
+        this.update = function (results, globals) {
+            var options = globals ? _.defaults(globals, candidates.globals) : candidates.globals;
+
+            candidates.updateTally(results, options);
+            candidates.updateContest(options); // You can do better than this.
+        };
     };
 
     Candidates.prototype.updateContest = function (globals) {
@@ -526,13 +549,6 @@
                 candidate.maxVotes = maxVotes;
             });
         });
-    };
-
-    Candidates.prototype.update = function (results, globals) {
-        var options = globals ? _.defaults(globals, this.globals) : this.globals;
-
-        this.updateTally(results, options);
-        this.updateContest(options); // You can do better than this.
     };
 
     Filter = function (el) {

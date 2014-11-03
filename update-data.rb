@@ -2,11 +2,16 @@
 
 require 'open-uri'
 require 'digest/md5'
+require 'yaml'
+
+config = YAML.load_file('config.yml')
 
 OpenURI::Buffer.send :remove_const, 'StringMax' if OpenURI::Buffer.const_defined?('StringMax')
 OpenURI::Buffer.const_set 'StringMax', 40960
 
 SHEET_ID = '1xZXetat3Up0qHRJfRs8jQIlTJgRT9zzuAEAlyZ-p4RU'
+SERVER = 'https://enigmatic-peak-6355.herokuapp.com/updatedpaths'
+SECRETKEY = config['secretkey'] || 'password'
 
 def get_google_sheet (gid)
 	open("https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&id=" + SHEET_ID + "&gid=" + gid).string
@@ -46,4 +51,8 @@ if changed_files.length > 0 then
 	`git commit -m #{message}`
 	`git push`
 	`git push -f origin master:gh-pages`
+
+	changed_files.each do |file|
+		`curl --data "path=#{file}&secret=#{SECRETKEY}" #{SERVER}`
+	end
 end
