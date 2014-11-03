@@ -35,7 +35,7 @@
         initialize: function () {
             var subscribeTo = data.subscribeTo;
 
-            app.map = new Map('map');
+            app.map = new Map('map', app);
             app.filter = new Filter('.options .filter');
 
             data.updateAll(function (data) {
@@ -44,7 +44,7 @@
 
                 app.navigation = new Navigation('navigation', data.contests);
                 app.status = new Status('#status', data.results);
-                app.candidates = new Candidates('#candidates', data);
+                app.candidates = new Candidates('#candidates', data, app.globals);
                 app.candidates.updateTally(data.results, app.globals);
                 app.candidates.updateContest(app.globals);
                 app.map.results = data.results;
@@ -154,7 +154,7 @@
         };
     }());
 
-    Map = function (el) {
+    Map = function (el, app) {
         var map = this;
 
         this.results = this.results || {};
@@ -253,6 +253,11 @@
                                 layer.setStyle({ fillColor: '#D4D1D0' });
                             }
                         }
+
+                        layer.on({
+                            mouseover: mouseover,
+                            mouseout: mouseout
+                        });
                     };
 
                     displayMargin = function () {
@@ -277,10 +282,22 @@
                                 map.marginCircles.addLayer(L.circle(layer.getBounds().getCenter(), Math.sqrt(margin / maxMargin / 3.14) * 1000, {
                                     color: winnerColor,
                                     fillOpacity: 0.75,
-                                    stroke: 0
+                                    stroke: false
+                                }).on({
+                                    mouseover: function (e) {
+                                        e.target.setStyle({ stroke: true });
+                                        app.candidates.update(map.results, { filteredVTDs: [feature.id] });
+                                    },
+                                    mouseout: function (e) {
+                                        e.target.setStyle({ stroke: false });
+                                        app.candidates.update(map.results);
+                                    }
                                 }));
                             }
                         }
+
+                        layer.off('mouseover');
+                        layer.off('mouseout');
                     };
 
                     update = function (globals) {
@@ -294,22 +311,19 @@
                                 break;
                             }
                         } else {
-                            layer.setStyle({ fillColor: '#D4D1D0' });
+                            layer.setStyle({ fillColor: '#E4E1E0' });
                         }
                     };
 
                     mouseover = function (e) {
                         e.target.setStyle({ weight: 4 });
+                        app.candidates.update(map.results, { filteredVTDs: [feature.id] });
                     };
 
                     mouseout = function (e) {
                         e.target.setStyle({ weight: 2 });
+                        app.candidates.update(map.results);
                     };
-
-                    layer.on({
-                        mouseover: mouseover,
-                        mouseout: mouseout
-                    });
 
                     map.on({
                         update: update
@@ -386,9 +400,10 @@
         return valid.length / results.length;
     };
 
-    Candidates = function (el, data) {
+    Candidates = function (el, data, globals) {
         var $el = $(el);
         this.$el = $el;
+        this.globals = globals;
         this.contests = _.groupBy(data.candidates, 'contest');
         this.vtds = data.vtd;
 
@@ -476,8 +491,10 @@
     };
 
     Candidates.prototype.update = function (results, globals) {
-        this.updateTally(results, globals);
-        this.updateContest(globals); // You can do better than this.
+        var options = globals ? _.defaults(globals, this.globals) : this.globals;
+
+        this.updateTally(results, options);
+        this.updateContest(options); // You can do better than this.
     };
 
     Filter = function (el) {
