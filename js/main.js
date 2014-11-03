@@ -13,6 +13,7 @@
         Candidates,
         Map,
         Filter,
+        Legend,
 
         SHAPEFILE = 'data/precinct-boundaries.json',
         DATA_PATHS = {
@@ -21,6 +22,21 @@
             candidates: 'data/candidates.csv',
             results: 'data/results.csv'
         };
+
+    function interpolateHex(hex1, hex2, distance) {
+        // But it works.
+        var r1 = parseInt(hex1.substr(1, 2), 16),
+            g1 = parseInt(hex1.substr(3, 2), 16),
+            b1 = parseInt(hex1.substr(5, 2), 16),
+            r2 = parseInt(hex2.substr(1, 2), 16),
+            g2 = parseInt(hex2.substr(3, 2), 16),
+            b2 = parseInt(hex2.substr(5, 2), 16),
+            r = Math.round(r2 + (r1 - r2) * distance).toString(16),
+            g = Math.round(g2 + (g1 - g2) * distance).toString(16),
+            b = Math.round(b2 + (b1 - b2) * distance).toString(16);
+
+        return '#' + (r.length === 2 ? r : '0' + r) + (g.length === 2 ? g : '0' + g) + (b.length === 2 ? b : '0' + b);
+    }
 
     $(function () { app.initialize(); });
 
@@ -50,6 +66,7 @@
                 app.map.results = data.results;
                 app.map.candidates = _.where(data.candidates, { contest: app.globals.contest });
                 app.map.fireEvent('update', app.globals);
+                app.legend = new Legend('#legend', data.candidates, app.globals.contest);
 
 
                 $('.options .view a').click(function (e) {
@@ -69,6 +86,8 @@
 
                     app.candidates.updateContest(app.globals);
 
+                    app.legend.updateContest(newContest);
+
                     app.map.candidates = _.where(data.candidates, { contest: app.globals.contest });
                     app.map.fireEvent('update', app.globals);
                 };
@@ -83,6 +102,36 @@
                 subscribeTo('results', app.candidates.update);
             });
         }
+    };
+
+    Legend = function (el, candidates, contest) {
+        this.$el = $(el);
+        this.candidates = candidates;
+        this.updateContest(contest);
+    };
+
+    Legend.prototype.updateContest = function (contest) {
+        var legend = this,
+            candidates = _.filter(legend.candidates, function (candidate) {
+                return !(candidate.other) && candidate.contest === contest;
+            }),
+            header = '<div class="line legend-header"><div class="name"></div><div class="legend-divider">60%</div><div class="legend-divider">70%</div><div class="legend-divider">80%</div></div>';
+
+        legend.$el.empty();
+
+        legend.$el.append(header);
+
+        _.each(candidates, function (candidate) {
+            var div = $('<div class="line">');
+
+            div.append($('<div class="name">').text(candidate.last_name));
+            div.append($('<div class="legend-box">').css('background', interpolateHex(candidate.color, '#D4D1D0', 0.25)));
+            div.append($('<div class="legend-box">').css('background', interpolateHex(candidate.color, '#D4D1D0', 0.5)));
+            div.append($('<div class="legend-box">').css('background', interpolateHex(candidate.color, '#D4D1D0', 0.75)));
+            div.append($('<div class="legend-box">').css('background', candidate.color));
+
+            legend.$el.append(div);
+        });
     };
 
     data = (function () {
@@ -204,21 +253,6 @@
                 },
                 onEachFeature: function (feature, layer) {
                     var displayWinner, displayMargin, update, mouseover, mouseout;
-
-                    function interpolateHex(hex1, hex2, distance) {
-                        // But it works.
-                        var r1 = parseInt(hex1.substr(1, 2), 16),
-                            g1 = parseInt(hex1.substr(3, 2), 16),
-                            b1 = parseInt(hex1.substr(5, 2), 16),
-                            r2 = parseInt(hex2.substr(1, 2), 16),
-                            g2 = parseInt(hex2.substr(3, 2), 16),
-                            b2 = parseInt(hex2.substr(5, 2), 16),
-                            r = Math.round(r2 + (r1 - r2) * distance).toString(16),
-                            g = Math.round(g2 + (g1 - g2) * distance).toString(16),
-                            b = Math.round(b2 + (b1 - b2) * distance).toString(16);
-
-                        return '#' + (r.length === 2 ? r : '0' + r) + (g.length === 2 ? g : '0' + g) + (b.length === 2 ? b : '0' + b);
-                    }
 
                     function cutscores(d) {
                         /*jslint white: true */

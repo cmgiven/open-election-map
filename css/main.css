@@ -353,6 +353,24 @@ a.action:hover {
     float: left;
 }
 
+#legend div.line { margin-top: -3px;}
+
+#legend div.line div { display: inline-block;}
+
+#legend div.line .name { position: relative; bottom: 3px; }
+
+#legend .legend-divider { font-size: 10px; width: 32px; text-align: center; }
+
+#legend .legend-header .name { margin-right: 17px;}
+
+#legend .legend-header { padding-bottom: 1px; }
+
+.legend-box {
+    width: 30px;
+    height: 15px;
+    margin-right: 2px;
+}
+
 .options .panel {
     margin-bottom: 15px;
 }
@@ -420,6 +438,13 @@ div.filter-controls .label[data-units="dollars"]:before {
 }
 
 span.divider { color: #D4D1D0; }
+
+footer {
+    font-size: 11px;
+    clear: both;
+}
+
+footer a { color: #363433; }
 
 @media screen and (max-width: 767px) {
     header .wrapper, #main {
