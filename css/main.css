@@ -353,6 +353,8 @@ a.action:hover {
     float: left;
 }
 
+#legend { margin-top: -15px; }
+
 #legend div.line { margin-top: -3px;}
 
 #legend div.line div { display: inline-block;}

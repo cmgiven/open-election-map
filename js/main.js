@@ -100,6 +100,10 @@
 
                 subscribeTo('results', app.status.update);
                 subscribeTo('results', app.candidates.update);
+                subscribeTo('results', function (results) {
+                    app.map.results = results;
+                    app.map.fireEvent('update', app.globals);
+                });
             });
         }
     };
