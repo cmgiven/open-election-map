@@ -2,9 +2,6 @@
 
 require 'open-uri'
 require 'digest/md5'
-require 'yaml'
-
-config = YAML.load_file('config.yml')
 
 OpenURI::Buffer.send :remove_const, 'StringMax' if OpenURI::Buffer.const_defined?('StringMax')
 OpenURI::Buffer.const_set 'StringMax', 40960
@@ -51,8 +48,4 @@ if changed_files.length > 0 then
 	`git commit -m #{message}`
 	`git push`
 	`git push -f origin master:gh-pages`
-
-	changed_files.each do |file|
-		`curl --data "path=#{file}&secret=#{SECRETKEY}" #{SERVER}`
-	end
 end

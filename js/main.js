@@ -15,8 +15,6 @@
         Filter,
         Legend,
 
-        SERVER = 'ws://enigmatic-peak-6355.herokuapp.com',
-
         SHAPEFILE = 'data/precinct-boundaries.json',
         DATA_PATHS = {
             vtd: 'data/vtd.csv',
@@ -109,17 +107,7 @@
                 });
             });
 
-            function intervalCheck() {
-                setInterval(function () { data.update(['results']); }, 90000);
-            }
-
-            if (WebSocket) {
-                ws = new WebSocket(SERVER);
-                ws.onclose = intervalCheck;
-                ws.onmessage = function (event) { data.update([JSON.parse(event.data)]); };
-            } else {
-                intervalCheck();
-            }
+            setInterval(function () { data.update(['results']); }, 60000);
         }
     };
 
