@@ -456,6 +456,14 @@ footer {
 
 footer a { color: #363433; }
 
+.mobile.credits {
+    display: none;
+    width: 100%;
+    background: #fff;
+    text-align: center;
+    padding-bottom: 15px;
+}
+
 @media screen and (max-width: 767px) {
     header .wrapper, #main {
         padding: 0 15px;
@@ -478,11 +486,13 @@ footer a { color: #363433; }
 
 @media screen and (max-width: 639px) {
     header div.credits { display: none; }
+    .mobile.credits { display: block; }
 
-    .name       { width: 50%; }
-    .party      { display: none; }
-    .votes      { width: 25%; }
-    .percentage { width: 25%; }
+    .name         { width: 50%; }
+    #legend .name { width: 35%; }
+    .party        { display: none; }
+    .votes        { width: 25%; }
+    .percentage   { width: 25%; }
 
     #map-wrapper { width: 100%; }
     #exhibit div.options { width: 100%; }
