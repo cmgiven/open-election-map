@@ -66,6 +66,7 @@
                 app.candidates.updateContest(app.globals);
                 app.map.results = data.results;
                 app.map.candidates = _.where(data.candidates, { contest: app.globals.contest });
+                app.map.vtds = data.vtd;
                 app.map.fireEvent('update', app.globals);
                 app.legend = new Legend('#legend', data.candidates, app.globals.contest);
 
@@ -107,7 +108,7 @@
                 });
             });
 
-            setInterval(function () { data.update(['results']); }, 60000);
+            setInterval(function () { data.update(['results']); }, 300000);
         }
     };
 
@@ -167,7 +168,7 @@
             var wrappedCallback,
                 ajaxSet = _.map(paths, asyncCallsForPath),
                 subscribedCallbacks = _.reduce(paths, function (memo, path) {
-                    return memo.concat(subscribers[path]);
+                    return memo.concat(subscribers[pathIfNotPath(path)]);
                 }, []);
 
             wrappedCallback = function () {
@@ -215,6 +216,7 @@
 
         this.results = this.results || {};
         this.candidates = this.candidates || {};
+        this.vtds = this.vtds || {};
 
         this.superclass(el, {
             dragging: false,
@@ -326,12 +328,17 @@
                                     stroke: false
                                 }).on({
                                     mouseover: function (e) {
+                                        var vtd = _.findWhere(map.vtds, { vtd: feature.id });
                                         e.target.setStyle({ stroke: true });
                                         app.candidates.update(map.results, { filteredVTDs: [feature.id] });
+                                        $('#hover-label .precinct').text(vtd.name);
+                                        $('#hover-label .ward').text('Ward ' + vtd.ward);
                                     },
                                     mouseout: function (e) {
                                         e.target.setStyle({ stroke: false });
                                         app.candidates.update(map.results);
+                                        $('#hover-label .precinct').empty();
+                                        $('#hover-label .ward').empty();
                                     }
                                 }));
                             }
@@ -357,13 +364,18 @@
                     };
 
                     mouseover = function (e) {
+                        var vtd = _.findWhere(map.vtds, { vtd: feature.id });
                         e.target.setStyle({ weight: 4 });
                         app.candidates.update(map.results, { filteredVTDs: [feature.id] });
+                        $('#hover-label .precinct').text(vtd.name);
+                        $('#hover-label .ward').text('Ward ' + vtd.ward);
                     };
 
                     mouseout = function (e) {
                         e.target.setStyle({ weight: 2 });
                         app.candidates.update(map.results);
+                        $('#hover-label .precinct').empty();
+                        $('#hover-label .ward').empty();
                     };
 
                     map.on({

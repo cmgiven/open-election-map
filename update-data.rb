@@ -7,8 +7,6 @@ OpenURI::Buffer.send :remove_const, 'StringMax' if OpenURI::Buffer.const_defined
 OpenURI::Buffer.const_set 'StringMax', 40960
 
 SHEET_ID = '1xZXetat3Up0qHRJfRs8jQIlTJgRT9zzuAEAlyZ-p4RU'
-SERVER = 'https://enigmatic-peak-6355.herokuapp.com/updatedpaths'
-SECRETKEY = config['secretkey'] || 'password'
 
 def get_google_sheet (gid)
 	open("https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&id=" + SHEET_ID + "&gid=" + gid).string

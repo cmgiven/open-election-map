@@ -331,6 +331,14 @@ a.action:hover {
     display: none;
 }
 
+#hover-label {
+    position: absolute;
+}
+
+#hover-label .precinct {
+    font-weight: bold;
+}
+
 #map-wrapper {
     width: 67%;
     float: left;
