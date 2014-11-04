@@ -66,7 +66,7 @@
                 app.candidates.updateContest(app.globals);
                 app.map.results = data.results;
                 app.map.candidates = _.where(data.candidates, { contest: app.globals.contest });
-                app.map.vtds = data.vtd;
+                app.map.vtdData = data.vtd;
                 app.map.fireEvent('update', app.globals);
                 app.legend = new Legend('#legend', data.candidates, app.globals.contest);
 
@@ -216,7 +216,7 @@
 
         this.results = this.results || {};
         this.candidates = this.candidates || {};
-        this.vtds = this.vtds || {};
+        this.vtdData = this.vtdData || {};
 
         this.superclass(el, {
             dragging: false,
@@ -328,7 +328,7 @@
                                     stroke: false
                                 }).on({
                                     mouseover: function (e) {
-                                        var vtd = _.findWhere(map.vtds, { vtd: feature.id });
+                                        var vtd = _.findWhere(map.vtdData, { vtd: feature.id });
                                         e.target.setStyle({ stroke: true });
                                         app.candidates.update(map.results, { filteredVTDs: [feature.id] });
                                         $('#hover-label .precinct').text(vtd.name);
@@ -364,7 +364,7 @@
                     };
 
                     mouseover = function (e) {
-                        var vtd = _.findWhere(map.vtds, { vtd: feature.id });
+                        var vtd = _.findWhere(map.vtdData, { vtd: feature.id });
                         e.target.setStyle({ weight: 4 });
                         app.candidates.update(map.results, { filteredVTDs: [feature.id] });
                         $('#hover-label .precinct').text(vtd.name);
