@@ -108,7 +108,7 @@
                 });
             });
 
-            setInterval(function () { data.update(['results']); }, 300000);
+            // setInterval(function () { data.update(['results']); }, 300000);
         }
     };
 
