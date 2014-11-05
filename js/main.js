@@ -434,9 +434,9 @@
 
         status.update = function (results) {
             var reporting = status.reporting(results);
-            $(el + ' .progress-bar .horizontal-bar').width('4%');
+            $(el + ' .progress-bar .horizontal-bar').width('28%');
             $(el + ' span.label').text(
-                '4% of precincts reporting'
+                '28% of precincts reporting'
             );
         };
 
