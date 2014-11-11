@@ -1,6 +1,6 @@
 /*jslint browser: true*/
 /*jslint nomen: true*/
-/*global $, _, L, topojson, WebSocket*/
+/*global $, _, L, topojson*/
 
 (function () {
     'use strict';
@@ -15,16 +15,84 @@
         Filter,
         Legend,
 
+        // Default data file locations. CSVs are updated by update-data.rb.
+
         SHAPEFILE = 'data/precinct-boundaries.json',
         DATA_PATHS = {
             vtd: 'data/vtd.csv',
             contests: 'data/contests.csv',
             candidates: 'data/candidates.csv',
             results: 'data/results.csv'
+        },
+
+        // Begin customizable constants.
+
+        REFRESH_DELAY = 0, // Delay in seconds between checks for data. 0 to disable.
+
+        TOOLTIP_DESCRIPTION = function (vtd) {
+            return 'Ward ' + vtd.ward;
+        },
+
+        AVAILABLE_FILTERS = {
+            black: {
+                name: 'Black Areas', // Labels the filter.
+                column: 'PctBlackNonHispBridge_2010', // Must match a column in the vtd spreadsheet.
+                description: "with a black population of" // Used for the descriptive text.
+            },
+            white: {
+                name: 'White Areas',
+                column: 'PctWhiteNonHispBridge_2010',
+                description: "with a white population of"
+            },
+            hispanic: {
+                name: 'Hispanic Areas',
+                column: 'PctHisp_2010',
+                description: "with an Hispanic population of",
+                divider: 25 // Defaults to 50
+            },
+            homeowners: {
+                name: 'Homeowners',
+                column: 'PctOwnerOccupiedHsgUnits_2007_11',
+                description: "where the percentage of homes occupied by the owner is"
+            },
+            income: {
+                name: 'Avg Income',
+                column: 'AvgFamilyIncAdj_2007_11',
+                description: "where the average family income is",
+                units: 'dollars',  // Defaults to 'percent'
+                min: 25000,  // Defaults to 0
+                max: 200000, // Defaults to 100
+                step: 2500,  // Defaults to 1
+                divider: 60000,
+                direction: 'lt' // Defaults to 'gt' for 'greater than'
+            },
+            unemployment: {
+                name: 'Unemployment',
+                column: 'PctUnemployed_2007_11',
+                description: "where the unemployment rate is",
+                min: 0,
+                max: 30,
+                step: 0.5,
+                divider: 7.5
+            },
+            bowser: {
+                name: 'Bowser Primary Vote',
+                column: 'DemPrimary14_Bowser',
+                description: "where Muriel Bowser's vote share in the Democratic primary was"
+            },
+            gray: {
+                name: 'Gray Primary Vote',
+                column: 'DemPrimary14_Gray',
+                description: "where Vincent Gray's vote share in the Democratic primary was"
+            },
+            fenty: {
+                name: 'Fenty 2010 Primary Vote',
+                column: 'DemPrimary10_Fenty',
+                description: "where Adrian Fenty's vote share in the 2010 Democratic primary was"
+            }
         };
 
     function interpolateHex(hex1, hex2, distance) {
-        // But it works.
         var r1 = parseInt(hex1.substr(1, 2), 16),
             g1 = parseInt(hex1.substr(3, 2), 16),
             b1 = parseInt(hex1.substr(5, 2), 16),
@@ -49,8 +117,7 @@
         },
 
         initialize: function () {
-            var ws,
-                subscribeTo = data.subscribeTo;
+            var subscribeTo = data.subscribeTo;
 
             app.map = new Map('map', app);
             app.filter = new Filter('.options .filter');
@@ -108,7 +175,9 @@
                 });
             });
 
-            // setInterval(function () { data.update(['results']); }, 300000);
+            if (REFRESH_DELAY > 0) {
+                setInterval(function () { data.update(['results']); }, REFRESH_DELAY * 1000);
+            }
         }
     };
 
@@ -331,14 +400,14 @@
                                         var vtd = _.findWhere(map.vtdData, { vtd: feature.id });
                                         e.target.setStyle({ stroke: true });
                                         app.candidates.update(map.results, { filteredVTDs: [feature.id] });
-                                        $('#hover-label .precinct').text(vtd.name);
-                                        $('#hover-label .ward').text('Ward ' + vtd.ward);
+                                        $('#hover-label .vtd-name').text(vtd.name);
+                                        $('#hover-label .vtd-description').text(TOOLTIP_DESCRIPTION(vtd));
                                     },
                                     mouseout: function (e) {
                                         e.target.setStyle({ stroke: false });
                                         app.candidates.update(map.results);
-                                        $('#hover-label .precinct').empty();
-                                        $('#hover-label .ward').empty();
+                                        $('#hover-label .vtd-name').empty();
+                                        $('#hover-label .vtd-description').empty();
                                     }
                                 }));
                             }
@@ -367,15 +436,15 @@
                         var vtd = _.findWhere(map.vtdData, { vtd: feature.id });
                         e.target.setStyle({ weight: 4 });
                         app.candidates.update(map.results, { filteredVTDs: [feature.id] });
-                        $('#hover-label .precinct').text(vtd.name);
-                        $('#hover-label .ward').text('Ward ' + vtd.ward);
+                        $('#hover-label .vtd-name').text(vtd.name);
+                        $('#hover-label .vtd-description').text(TOOLTIP_DESCRIPTION(vtd));
                     };
 
                     mouseout = function (e) {
                         e.target.setStyle({ weight: 2 });
                         app.candidates.update(map.results);
-                        $('#hover-label .precinct').empty();
-                        $('#hover-label .ward').empty();
+                        $('#hover-label .vtd-name').empty();
+                        $('#hover-label .vtd-description').empty();
                     };
 
                     map.on({
@@ -490,7 +559,7 @@
             var options = globals ? _.defaults(globals, candidates.globals) : candidates.globals;
 
             candidates.updateTally(results, options);
-            candidates.updateContest(options); // You can do better than this.
+            candidates.updateContest(options);
         };
     };
 
@@ -558,7 +627,7 @@
 
         filter.filters = [];
 
-        _.each(filter.availableFilters, function (options, key) {
+        _.each(AVAILABLE_FILTERS, function (options, key) {
             $ul.append(
                 $('<li>').append(
                     $('<a>')
@@ -578,7 +647,7 @@
         $(el + ' ul a').click(function (e) {
             var target = $(e.target),
                 key = target.data('filter'),
-                options = filter.availableFilters[key];
+                options = AVAILABLE_FILTERS[key];
 
             filter.filters = [];
 
@@ -639,65 +708,6 @@
             $('.filter-controls').slideUp(300);
             if (filter.onChange) { filter.onChange(); }
         });
-    };
-
-    Filter.prototype.availableFilters = {
-        black: {
-            name: 'Black Areas',
-            column: 'PctBlackNonHispBridge_2010',
-            description: "with a black population of"
-        },
-        white: {
-            name: 'White Areas',
-            column: 'PctWhiteNonHispBridge_2010',
-            description: "with a white population of"
-        },
-        hispanic: {
-            name: 'Hispanic Areas',
-            column: 'PctHisp_2010',
-            description: "with an Hispanic population of",
-            divider: 25
-        },
-        homeowners: {
-            name: 'Homeowners',
-            column: 'PctOwnerOccupiedHsgUnits_2007_11',
-            description: "where the percentage of homes occupied by the owner is"
-        },
-        income: {
-            name: 'Avg Income',
-            column: 'AvgFamilyIncAdj_2007_11',
-            description: "where the average family income is",
-            units: 'dollars',
-            min: 25000,
-            max: 200000,
-            step: 2500,
-            divider: 60000,
-            direction: 'lt'
-        },
-        unemployment: {
-            name: 'Unemployment',
-            column: 'PctUnemployed_2007_11',
-            description: "where the unemployment rate is",
-            min: 0,
-            max: 30,
-            step: 0.5,
-            divider: 7.5
-        },
-        bowser: {
-            name: 'Bowser Primary Vote',
-            column: 'DemPrimary14_Bowser',
-            description: "where Muriel Bowser's vote share in the Democratic primary was"
-        },
-        gray: {
-            name: 'Gray Primary Vote',
-            column: 'DemPrimary14_Gray',
-            description: "where Vincent Gray's vote share in the Democratic primary was"
-        },
-        fenty: {
-            name: 'Fenty 2010 Primary Vote',
-            column: 'DemPrimary10_Fenty',
-            description: "where Adrian Fenty's vote share in the 2010 Democratic primary was"
-        }
     };
 
     Filter.prototype.applyFilter = function (options) {

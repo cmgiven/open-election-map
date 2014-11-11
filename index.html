@@ -6,8 +6,11 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <!-- Don't forget to change this. -->
         <title>Open Election Map</title>
         <meta name="description" content="Results from the DC 2014 General Election">
+
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link href='http://fonts.googleapis.com/css?family=Cabin:400,700' rel='stylesheet' type='text/css'>
@@ -18,9 +21,11 @@
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
     </head>
     <body>
+
+        <!-- Begin custom header. -->
         <header>
-        <div class="wrapper">
-            <!-- <img class="logo" src="img/logo.png" alt="" /> -->
+            <div class="wrapper">
+                <!-- <img class="logo" src="img/logo.png" alt="" /> -->
                 <div class="title">
                     <h1>Open Election Map</h1>
                     <h2>DC 2014 General Election</h2>
@@ -31,6 +36,8 @@
                 </div>
             </div>
         </header>
+        <!-- End custom header. -->
+
         <div id="main">
             <section id="top">
                 <navigation></navigation>
@@ -50,7 +57,10 @@
                 <a class="action">Show All +</a>
             </section>
             <section id="exhibit">
-                <div id="hover-label"><div class="precinct"></div><div class="ward"></div></div>
+                <div id="hover-label">
+                    <div class="vtd-name"></div>
+                    <div class="vtd-description"></div>
+                </div>
                 <div id="map-wrapper"><div id="map">&nbsp;</div></div>
                 <div class="options">
                     <div class="panel legend">
@@ -79,12 +89,17 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Begin custom footer. -->
             <footer>
                 <p><a href="https://docs.google.com/spreadsheets/d/1xZXetat3Up0qHRJfRs8jQIlTJgRT9zzuAEAlyZ-p4RU/edit?usp=sharing">Data Download</a> | <a href="https://github.com/cmgiven/open-election-map">Fork Us on Github</a></p>
                 <p>Data provided by the <a href="https://www.dcboee.org">DC Board of Elections</a> and by <a href="http://neighborhoodinfodc.org/comparisontables/comparisontables.html">Neighborhood Info DC</a>, a project of the <a href="http://www.urban.org/">Urban Institute</a> and the <a href="http://www.lisc.org/washingtondc/">Washington DC Local Initiatives Support Corporation</a>.</p>
             </footer>
+            <!-- End custom footer. -->
+
         </div>
 
+        <!-- Replacement for the header credits div on mobile. -->
         <div class="mobile credits">
             <a href="http://wamu.org"><img src="img/wamu.png" alt="WAMU 88.5 American University Radio" width="156" height="50" class="wamu" /></a>
             <a href="http://codefordc.org"><img src="img/c4dc.png" alt="Code for DC" width="106" height="60" class="codefordc" /></a>
@@ -116,9 +131,13 @@
         <script src="js/lodash.min.js"></script>
         <script src="js/jquery.csv-0.71.min.js"></script>
         <script src="js/topojson.v1.min.js"></script>
+
+        <!-- Note that this is a customized version of Leaflet to enable fractional zooming. -->
         <script src="js/leaflet-master/leaflet-src.js"></script>
+
         <script src="js/main.js"></script>
 
+        <!-- Change UA-56383922-1 to your GA tracking code. -->
         <script>
             (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
             function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
