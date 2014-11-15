@@ -455,9 +455,9 @@
                 }
             });
 
-            map.fitBounds(map.vtds).addLayer(map.vtds);
+            map.fitBounds(map.vtds, { step: 0.1 }).addLayer(map.vtds);
 
-            $(window).resize(function () { map.fitBounds(map.vtds); });
+            $(window).resize(function () { map.fitBounds(map.vtds, { step: 0.1 }); });
         }
 
         $.ajax({
