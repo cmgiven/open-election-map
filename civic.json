@@ -1,0 +1,26 @@
+{
+    "conformsTo": "http://codefordc.org/resources/specification.html",
+    "status": "Archival",
+    "contact": {
+        "name": "Chris Given",
+        "email": "cmgiven@gmail.com",
+        "twitter": "@cmgiven"
+    },
+    "bornAt": "Code for DC",
+    "geography": "Washington, DC",
+    "communityPartner": {
+        "WAMU 88.5": "http://wamu.org"
+    },
+    "type": "Web app",
+    "data": {
+        "DC election results": "https://www.dcboee.org/election_info/election_results/2014/November-4-General-Election"
+    },
+    "needs": [],
+    "categories": [
+        {"category":"Politics"},
+        {"category":"Elections"},
+        {"category":"Mayor"},
+        {"category":"Attorney General"},
+        {"category":"Marijuana Legalization"}
+    ]
+}
