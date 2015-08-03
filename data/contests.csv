@@ -1,4 +1,6 @@
 id,name,initiative,winner
-mayor,Mayor,,
-ag,Attorney General,,
-initiative_71,Initative 71,TRUE,
+president,President,,
+congress,US Congress,,
+governor,Governor,,
+county_executive,County Executive,,
+council_president,County Council President,,
