@@ -1,26 +1,46 @@
 {
-    "conformsTo": "http://codefordc.org/resources/specification.html",
-    "status": "Archival",
+    "name": "Open Elections Map", 
+    "description": "Election map for DC's 2014 general election", 
+    "license": "CC0-1.0", 
+    "status": "Archival", 
+    "type": "Web app", 
+    "homepage": "http://electionmap.wamu.org", 
+    "repository": "https://github.com/cmgiven/open-election-map", 
+    "thumbnail": "", 
+    "geography": [
+        "Washington, DC"
+    ], 
     "contact": {
-        "name": "Chris Given",
-        "email": "cmgiven@gmail.com",
-        "twitter": "@cmgiven"
-    },
-    "bornAt": "Code for DC",
-    "geography": "Washington, DC",
-    "communityPartner": {
-        "WAMU 88.5": "http://wamu.org"
-    },
-    "type": "Web app",
-    "data": {
-        "DC election results": "https://www.dcboee.org/election_info/election_results/2014/November-4-General-Election"
-    },
-    "needs": [],
-    "categories": [
-        {"category":"Politics"},
-        {"category":"Elections"},
-        {"category":"Mayor"},
-        {"category":"Attorney General"},
-        {"category":"Marijuana Legalization"}
-    ]
+        "name": "Chris Given", 
+        "email": "cmgiven@gmail.com", 
+        "url": "https://twitter.com/@cmgiven"
+    }, 
+    "partners": [
+        {
+            "url": "http://wamu.org", 
+            "name": "WAMU 88.5", 
+            "email": ""
+        }, 
+        {
+            "url": "http://codefordc.org", 
+            "name": "Code for DC", 
+            "email": ""
+        }
+    ], 
+    "data": [
+        {
+            "url": "https://www.dcboee.org/election_info/election_results/2014/November-4-General-Election", 
+            "name": "DC election results", 
+            "metadata": ""
+        }
+    ], 
+    "tags": [
+        "Politics", 
+        "Elections", 
+        "Mayor", 
+        "Attorney General", 
+        "Marijuana Legalization"
+    ], 
+    "links": [], 
+    "id": "https://raw.githubusercontent.com/DCgov/civic.json/master/schemas/schema-v1.json"
 }
